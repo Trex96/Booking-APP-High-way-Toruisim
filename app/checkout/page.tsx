@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Header from "@/components/Header";
+import { motion } from "framer-motion";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -13,6 +14,10 @@ export default function CheckoutPage() {
   const [email, setEmail] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [promoValidation, setPromoValidation] = useState<{isValid: boolean | null, message: string, discount?: {type: string, value: number}}>({isValid: null, message: ""});
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
 
   useEffect(() => {
     const bookingData = sessionStorage.getItem("booking");
@@ -23,46 +28,137 @@ export default function CheckoutPage() {
     }
   }, [router]);
 
-  const handleApplyPromo = () => {
-    alert("Promo code functionality not implemented in this demo");
+  const handleApplyPromo = async () => {
+    // Clear previous validation
+    setPromoValidation({isValid: null, message: ""});
+    
+    if (!promoCode.trim()) {
+      setPromoValidation({isValid: false, message: "Please enter a promo code"});
+      return;
+    }
+
+    setIsApplyingPromo(true);
+    
+    try {
+      const res = await fetch("/api/promo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: promoCode.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setPromoValidation({
+          isValid: true, 
+          message: `Promo code applied! Discount: ${data.discountValue}${data.discountType === 'percentage' ? '%' : '₹'}`,
+          discount: {type: data.discountType, value: data.discountValue}
+        });
+      } else {
+        setPromoValidation({isValid: false, message: data.error || "Invalid promo code"});
+      }
+    } catch (err) {
+      console.error("Error applying promo code:", err);
+      setPromoValidation({isValid: false, message: "Failed to apply promo code. Please try again."});
+    } finally {
+      setIsApplyingPromo(false);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!agreedToTerms) {
       alert("Please agree to the terms and safety policy");
       return;
     }
+    
     if (!fullName || !email) {
       alert("Please fill in all required fields");
       return;
     }
 
-    const refId = "HUF" + Math.random().toString(36).substring(2, 8).toUpperCase() + "SO";
-    sessionStorage.setItem("refId", refId);
-    router.push("/confirmation");
+    setLoading(true);
+    setError(null);
+
+    try {
+      const bookingData = {
+        ...booking,
+        fullName,
+        email,
+        promoCode: promoCode || null
+      };
+
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        sessionStorage.setItem("refId", data.refId);
+        router.push("/confirmation");
+      } else {
+        setError(data.error || "Failed to create booking");
+      }
+    } catch (err) {
+      console.error("Error creating booking:", err);
+      setError("Failed to create booking");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!booking) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full"
+        />
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen">
       <Header />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-gray-700 mb-6 hover:text-gray-900"
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <ArrowLeft className="w-5 h-5" />
-          <span>Checkout</span>
-        </Link>
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-gray-700 mb-6 hover:text-gray-900"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>Checkout</span>
+          </Link>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
+          <motion.div 
+            className="lg:col-span-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <motion.div 
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
                 <div>
                   <label className="block text-sm text-gray-600 mb-2">
                     Full name
@@ -84,31 +180,100 @@ export default function CheckoutPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Your name"
+                    placeholder="Your email"
                     className="w-full px-4 py-3 bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                     required
                   />
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  placeholder="Promo code"
-                  className="flex-1 px-4 py-3 bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <button
+              <motion.div 
+                className="flex flex-col sm:flex-row gap-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <div className="flex-1">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={promoCode}
+                      onChange={(e) => {
+                        setPromoCode(e.target.value);
+                        // Clear validation when user types
+                        if (promoValidation.isValid !== null) {
+                          setPromoValidation({isValid: null, message: ""});
+                        }
+                      }}
+                      placeholder="Promo code"
+                      className="w-full px-4 py-3 bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary pr-10"
+                    />
+                    {(promoValidation.isValid === true || promoValidation.isValid === false) && (
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                        {promoValidation.isValid === true ? (
+                          <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : (
+                          <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-h-[24px] mt-1">
+                    {promoValidation.isValid === true && (
+                      <motion.div 
+                        className="text-green-600 text-sm"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {promoValidation.message}
+                      </motion.div>
+                    )}
+                    {promoValidation.isValid === false && (
+                      <motion.div 
+                        className="text-red-500 text-sm"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {promoValidation.message}
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+                <motion.button
                   type="button"
                   onClick={handleApplyPromo}
-                  className="px-6 py-3 bg-black text-white font-medium rounded-md hover:bg-gray-800 transition-colors"
+                  disabled={isApplyingPromo}
+                  className={`px-6 py-3 h-2 w-4 bg-primary text-black font-medium rounded-md hover:bg-primary-hover transition-colors whitespace-nowrap ${
+                    isApplyingPromo ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  whileHover={!isApplyingPromo ? { scale: 1.05 } : {}}
+                  whileTap={!isApplyingPromo ? { scale: 0.95 } : {}}
+                  style={{ minWidth: '100px', minHeight: '50px' }}
                 >
-                  Apply
-                </button>
-              </div>
+                  {isApplyingPromo ? (
+                    <div className="flex items-center justify-center">
+                      <div className="w-4 h-2 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></div>
+                      <span className="hidden sm:inline">Applying</span>
+                      <span className="sm:hidden">...</span>
+                    </div>
+                  ) : (
+                    "Apply"
+                  )}
+                </motion.button>
+              </motion.div>
 
-              <div className="flex items-start gap-2">
+              <motion.div 
+                className="flex items-start gap-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+              >
                 <input
                   type="checkbox"
                   id="terms"
@@ -119,38 +284,99 @@ export default function CheckoutPage() {
                 <label htmlFor="terms" className="text-sm text-gray-600">
                   I agree to the terms and safety policy
                 </label>
-              </div>
+              </motion.div>
 
-              <button
+              {error && (
+                <motion.div 
+                  className="text-red-500 text-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  {error}
+                </motion.div>
+              )}
+
+              <motion.button
                 type="submit"
-                className="hidden"
+                disabled={loading}
+                className="w-full py-3 bg-primary text-black font-medium rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
               >
-                Submit
-              </button>
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Processing...
+                  </div>
+                ) : (
+                  "Pay and Confirm"
+                )}
+              </motion.button>
             </form>
-          </div>
+          </motion.div>
 
-          <div className="lg:col-span-1">
-            <div className="bg-gray-50 p-6 rounded-lg">
+          <motion.div 
+            className="lg:col-span-1"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.7 }}
+          >
+            <div className="bg-gray-50 p-6 rounded-lg sticky top-4">
+              <motion.h2 
+                className="text-xl font-semibold mb-4"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+              >
+                Order Summary
+              </motion.h2>
               <div className="space-y-4">
-                <div className="flex justify-between">
+                <motion.div 
+                  className="flex justify-between"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.9 }}
+                >
                   <span className="text-gray-600">Experience</span>
-                  <span className="font-semibold">{booking.experience}</span>
-                </div>
-                <div className="flex justify-between">
+                  <span className="font-semibold">{booking.experienceTitle}</span>
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.0 }}
+                >
                   <span className="text-gray-600">Date</span>
                   <span>{booking.date}</span>
-                </div>
-                <div className="flex justify-between">
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.1 }}
+                >
                   <span className="text-gray-600">Time</span>
                   <span>{booking.time}</span>
-                </div>
-                <div className="flex justify-between">
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.2 }}
+                >
                   <span className="text-gray-600">Qty</span>
                   <span>{booking.quantity}</span>
-                </div>
+                </motion.div>
 
-                <div className="border-t border-gray-300 pt-4">
+                <motion.div 
+                  className="border-t border-gray-300 pt-4"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.3 }}
+                >
                   <div className="flex justify-between mb-2">
                     <span className="text-gray-600">Subtotal</span>
                     <span>₹{booking.subtotal}</span>
@@ -159,21 +385,39 @@ export default function CheckoutPage() {
                     <span className="text-gray-600">Taxes</span>
                     <span>₹{booking.taxes}</span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold mb-6">
+                  {promoValidation.isValid === true && promoValidation.discount && (
+                    <motion.div 
+                      className="flex justify-between mb-2"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                    >
+                      <span className="text-gray-600">Discount</span>
+                      <span className="text-green-600">
+                        -₹{promoValidation.discount.type === 'percentage' 
+                          ? Math.round(booking.subtotal * (promoValidation.discount.value / 100))
+                          : promoValidation.discount.value}
+                      </span>
+                    </motion.div>
+                  )}
+                  <motion.div 
+                    className="flex justify-between text-lg font-bold mb-6"
+                    initial={{ scale: 0.9 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 1.4, type: "spring" }}
+                  >
                     <span>Total</span>
-                    <span>₹{booking.total}</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleSubmit}
-                  className="w-full py-3 bg-primary text-black font-medium rounded-md hover:bg-primary-hover transition-colors"
-                >
-                  Pay and Confirm
-                </button>
+                    <span>
+                      ₹{promoValidation.isValid === true && promoValidation.discount 
+                        ? promoValidation.discount.type === 'percentage'
+                          ? booking.total - Math.round(booking.subtotal * (promoValidation.discount.value / 100))
+                          : booking.total - promoValidation.discount.value
+                        : booking.total}
+                    </span>
+                  </motion.div>
+                </motion.div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </main>
     </div>

@@ -8,6 +8,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '475px',
+        // Keeps existing breakpoints: sm, md, lg, xl, 2xl
+      },
       colors: {
         primary: {
           DEFAULT: "#FDB927",
