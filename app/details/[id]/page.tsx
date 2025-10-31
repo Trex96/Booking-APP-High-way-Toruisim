@@ -59,6 +59,8 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                 src={experience.image}
                 alt={experience.title}
                 fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 66vw"
                 className="object-cover"
               />
             </div>

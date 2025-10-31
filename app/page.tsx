@@ -2,12 +2,13 @@ import Header from "@/components/Header";
 import ExperienceCard from "@/components/ExperienceCard";
 import { experiences } from "@/lib/data";
 
-export default function Home({
+export default async function Home({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams: Promise<{ q?: string }>;
 }) {
-  const query = searchParams.q?.toLowerCase() || "";
+  const params = await searchParams;
+  const query = params.q?.toLowerCase() || "";
   
   const filteredExperiences = query
     ? experiences.filter(
