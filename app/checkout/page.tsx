@@ -249,7 +249,7 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={handleApplyPromo}
                   disabled={isApplyingPromo}
-                  className={`px-4 xs:px-6 py-2.5 xs:py-3 h-auto w-auto bg-primary text-black font-medium rounded-md hover:bg-primary-hover transition-colors whitespace-nowrap text-sm xs:text-base ${
+                  className={`px-4 xs:px-6 py-2.5 xs:py-6 flex items-center  h-4 w-auto bg-primary text-black font-medium rounded-md hover:bg-primary-hover transition-colors whitespace-nowrap text-sm xs:text-base ${
                     isApplyingPromo ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                   whileHover={!isApplyingPromo ? { scale: 1.05 } : {}}

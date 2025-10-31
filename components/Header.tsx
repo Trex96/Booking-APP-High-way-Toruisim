@@ -1,49 +1,44 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { MapPin, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 
 export default function Header() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const params = searchParams;
     if (params) {
-      // Update searchQuery when URL changes
-      const query = params.get("q");
-      console.log("Header useEffect - URL search params changed:", { query, params: Object.fromEntries(params.entries()) });
-      setSearchQuery(query !== null ? query : "");
+      setSearchQuery(params.get("q") || "");
     }
   }, [searchParams]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Header handleSearch - Search submitted:", { searchQuery, trimmed: searchQuery.trim() });
     if (searchQuery.trim()) {
       router.push(`/?q=${encodeURIComponent(searchQuery.trim())}`);
     } else {
       router.push("/");
     }
+    // Close mobile menu after search
+    setIsMenuOpen(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    console.log("Header handleInputChange - Input value changed:", { value, trimmed: value.trim() });
     setSearchQuery(value);
     
-    // Update URL with search query or clear query when empty
+    // Update URL with search query or empty query when cleared
     if (!value.trim()) {
-      // When search is cleared, go back to home page to show all experiences
-      console.log("Header handleInputChange - Search cleared, redirecting to home");
-      router.push("/", { scroll: false });
+      // When search is cleared, show all experiences by setting empty query
+      router.push("/?q=", { scroll: false });
     } else {
-      console.log("Header handleInputChange - Updating URL with search query");
       router.push(`/?q=${encodeURIComponent(value.trim())}`, { scroll: false });
     }
   };
@@ -63,22 +58,33 @@ export default function Header() {
             whileTap={{ scale: 0.95 }}
             className="flex-shrink-0"
           >
-            <Link href="/" className="flex items-center gap-2 xs:gap-3">
-              <div className="relative w-12 h-12 xs:w-20 xs:h-10">
-                <Image 
-                  src="/images/logo.png" 
-                  alt="Highway Delite Logo" 
-                  fill
-                  className="object-contain"
-                />
+            <Link href="/" className="flex items-center gap-1 xs:gap-2">
+              <div className="bg-black rounded-full p-1.5 xs:p-2">
+                <MapPin className="w-4 h-4 xs:w-5 xs:h-5 text-white" />
+              </div>
+              <div className="flex flex-col leading-none">
+                <span className="text-base xs:text-lg font-bold">Highway delite</span>
+                <span className="text-base xs:text-lg font-bold"></span>
               </div>
             </Link>
           </motion.div>
 
+          {/* Mobile menu button */}
+          <button 
+            className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <div className="w-6 h-6 flex flex-col justify-center items-center">
+              <span className={`block w-5 h-0.5 bg-current transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-1' : ''}`}></span>
+              <span className={`block w-5 h-0.5 bg-current mt-1 transition-all duration-300 ${isMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
+              <span className={`block w-5 h-0.5 bg-current mt-1 transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-1' : ''}`}></span>
+            </div>
+          </button>
+
           {/* Search form - hidden on mobile when menu closed */}
           <motion.form 
             onSubmit={handleSearch} 
-            className="md:flex gap-2 flex-1 max-w-2xl"
+            className={`${isMenuOpen ? 'block absolute top-full left-0 w-full bg-white p-4 border-b border-gray-200 md:static md:block md:p-0 md:border-0 md:bg-transparent md:w-auto' : 'hidden'} md:flex gap-2 flex-1 max-w-2xl`}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
