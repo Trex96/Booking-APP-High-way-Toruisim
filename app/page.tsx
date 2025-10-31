@@ -1,20 +1,20 @@
 import Header from "@/components/Header";
 import HomeContent from "@/components/HomeContent";
-import { Experience } from "@/lib/data";
 
 export default async function Home({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
-  // Fetch experiences from API
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/experiences`, { 
-    cache: 'no-store' 
-  });
-  const experiences: Experience[] = await res.json();
-
   const params = await searchParams;
-  const query = params.q?.toLowerCase() || "";
+  console.log("Page component - Received searchParams:", params);
+  
+  // Handle the query parameter
+  // undefined = no query parameter (show hero + all experiences)
+  // empty string = empty query parameter (show hero + all experiences)
+  // non-empty string = search query (hide hero + filter experiences)
+  let query = params.q;
+  console.log("Page component - Processed query:", { query, type: typeof query });
 
-  return <HomeContent experiences={experiences} query={query} />;
+  return <HomeContent query={query} />;
 }

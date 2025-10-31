@@ -130,37 +130,37 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen">
       <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 xs:px-6 sm:px-8 py-6 xs:py-8">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
           <Link
-            href="/"
-            className="flex items-center gap-2 text-gray-700 mb-6 hover:text-gray-900"
+            href={`/details/${booking?.experienceId}`}
+            className="flex items-center gap-2 text-gray-700 mb-4 xs:mb-6 hover:text-gray-900"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span>Checkout</span>
+            <ArrowLeft className="w-4 h-4 xs:w-5 xs:h-5" />
+            <span className="text-sm xs:text-base">Back to Experience</span>
           </Link>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 xs:gap-8">
           <motion.div 
             className="lg:col-span-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 xs:space-y-5">
               <motion.div 
-                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 xs:gap-5"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
                 <div>
-                  <label className="block text-sm text-gray-600 mb-2">
+                  <label className="block text-sm xs:text-base text-gray-600 mb-2">
                     Full name
                   </label>
                   <input
@@ -168,12 +168,12 @@ export default function CheckoutPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Your name"
-                    className="w-full px-4 py-3 bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 xs:px-4 py-2.5 xs:py-3 bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm xs:text-base"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-600 mb-2">
+                  <label className="block text-sm xs:text-base text-gray-600 mb-2">
                     Email
                   </label>
                   <input
@@ -181,14 +181,14 @@ export default function CheckoutPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Your email"
-                    className="w-full px-4 py-3 bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 xs:px-4 py-2.5 xs:py-3 bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm xs:text-base"
                     required
                   />
                 </div>
               </motion.div>
 
               <motion.div 
-                className="flex flex-col sm:flex-row gap-2"
+                className="flex flex-col xs:flex-row gap-3"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
@@ -206,26 +206,26 @@ export default function CheckoutPage() {
                         }
                       }}
                       placeholder="Promo code"
-                      className="w-full px-4 py-3 bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary pr-10"
+                      className="w-full px-3 xs:px-4 py-2.5 xs:py-3 bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary pr-10 text-sm xs:text-base"
                     />
                     {(promoValidation.isValid === true || promoValidation.isValid === false) && (
                       <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                         {promoValidation.isValid === true ? (
-                          <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="h-4 w-4 xs:h-5 xs:w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         ) : (
-                          <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="h-4 w-4 xs:h-5 xs:w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         )}
                       </div>
                     )}
                   </div>
-                  <div className="min-h-[24px] mt-1">
+                  <div className="min-h-[20px] xs:min-h-[24px] mt-1">
                     {promoValidation.isValid === true && (
                       <motion.div 
-                        className="text-green-600 text-sm"
+                        className="text-green-600 text-xs xs:text-sm"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.2 }}
@@ -235,7 +235,7 @@ export default function CheckoutPage() {
                     )}
                     {promoValidation.isValid === false && (
                       <motion.div 
-                        className="text-red-500 text-sm"
+                        className="text-red-500 text-xs xs:text-sm"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.2 }}
@@ -249,18 +249,16 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={handleApplyPromo}
                   disabled={isApplyingPromo}
-                  className={`px-6 py-3 h-2 w-4 bg-primary text-black font-medium rounded-md hover:bg-primary-hover transition-colors whitespace-nowrap ${
+                  className={`px-4 xs:px-6 py-2.5 xs:py-3 h-auto w-auto bg-primary text-black font-medium rounded-md hover:bg-primary-hover transition-colors whitespace-nowrap text-sm xs:text-base ${
                     isApplyingPromo ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                   whileHover={!isApplyingPromo ? { scale: 1.05 } : {}}
                   whileTap={!isApplyingPromo ? { scale: 0.95 } : {}}
-                  style={{ minWidth: '100px', minHeight: '50px' }}
                 >
                   {isApplyingPromo ? (
                     <div className="flex items-center justify-center">
-                      <div className="w-4 h-2 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></div>
-                      <span className="hidden sm:inline">Applying</span>
-                      <span className="sm:hidden">...</span>
+                      <div className="w-3 h-3 xs:w-4 xs:h-4 border-2 border-black border-t-transparent rounded-full animate-spin mr-1 xs:mr-2"></div>
+                      <span>Applying</span>
                     </div>
                   ) : (
                     "Apply"
@@ -281,7 +279,7 @@ export default function CheckoutPage() {
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
                   className="mt-1 w-4 h-4 accent-black"
                 />
-                <label htmlFor="terms" className="text-sm text-gray-600">
+                <label htmlFor="terms" className="text-xs xs:text-sm text-gray-600">
                   I agree to the terms and safety policy
                 </label>
               </motion.div>
@@ -299,7 +297,7 @@ export default function CheckoutPage() {
               <motion.button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-primary text-black font-medium rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50"
+                className="w-full py-2.5 xs:py-3 bg-primary text-black font-medium rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50 text-sm xs:text-base"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 initial={{ opacity: 0, y: 20 }}
@@ -308,11 +306,11 @@ export default function CheckoutPage() {
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <div className="w-4 h-4 xs:w-5 xs:h-5 border-2 border-black border-t-transparent rounded-full animate-spin mr-2"></div>
                     Processing...
                   </div>
                 ) : (
-                  "Pay and Confirm"
+                  "Pay and Confirm Booking"
                 )}
               </motion.button>
             </form>
@@ -324,24 +322,24 @@ export default function CheckoutPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.7 }}
           >
-            <div className="bg-gray-50 p-6 rounded-lg sticky top-4">
+            <div className="bg-gray-50 p-4 xs:p-6 rounded-lg sticky top-4">
               <motion.h2 
-                className="text-xl font-semibold mb-4"
+                className="text-lg xs:text-xl font-semibold mb-4"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
               >
                 Order Summary
               </motion.h2>
-              <div className="space-y-4">
+              <div className="space-y-3 xs:space-y-4">
                 <motion.div 
                   className="flex justify-between"
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.9 }}
                 >
-                  <span className="text-gray-600">Experience</span>
-                  <span className="font-semibold">{booking.experienceTitle}</span>
+                  <span className="text-gray-600 text-sm">Experience</span>
+                  <span className="font-medium text-sm xs:text-base">{booking.experienceTitle}</span>
                 </motion.div>
                 <motion.div 
                   className="flex justify-between"
@@ -349,8 +347,8 @@ export default function CheckoutPage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1.0 }}
                 >
-                  <span className="text-gray-600">Date</span>
-                  <span>{booking.date}</span>
+                  <span className="text-gray-600 text-sm">Date</span>
+                  <span className="text-sm">{booking.date}</span>
                 </motion.div>
                 <motion.div 
                   className="flex justify-between"
@@ -358,8 +356,8 @@ export default function CheckoutPage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1.1 }}
                 >
-                  <span className="text-gray-600">Time</span>
-                  <span>{booking.time}</span>
+                  <span className="text-gray-600 text-sm">Time</span>
+                  <span className="text-sm">{booking.time}</span>
                 </motion.div>
                 <motion.div 
                   className="flex justify-between"
@@ -367,8 +365,8 @@ export default function CheckoutPage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1.2 }}
                 >
-                  <span className="text-gray-600">Qty</span>
-                  <span>{booking.quantity}</span>
+                  <span className="text-gray-600 text-sm">Qty</span>
+                  <span className="text-sm">{booking.quantity}</span>
                 </motion.div>
 
                 <motion.div 
@@ -378,12 +376,12 @@ export default function CheckoutPage() {
                   transition={{ delay: 1.3 }}
                 >
                   <div className="flex justify-between mb-2">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span>₹{booking.subtotal}</span>
+                    <span className="text-gray-600 text-sm">Subtotal</span>
+                    <span className="text-sm">₹{booking.subtotal}</span>
                   </div>
-                  <div className="flex justify-between mb-4">
-                    <span className="text-gray-600">Taxes</span>
-                    <span>₹{booking.taxes}</span>
+                  <div className="flex justify-between mb-3 xs:mb-4">
+                    <span className="text-gray-600 text-sm">Taxes</span>
+                    <span className="text-sm">₹{booking.taxes}</span>
                   </div>
                   {promoValidation.isValid === true && promoValidation.discount && (
                     <motion.div 
@@ -391,8 +389,8 @@ export default function CheckoutPage() {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                     >
-                      <span className="text-gray-600">Discount</span>
-                      <span className="text-green-600">
+                      <span className="text-gray-600 text-sm">Discount</span>
+                      <span className="text-green-600 text-sm">
                         -₹{promoValidation.discount.type === 'percentage' 
                           ? Math.round(booking.subtotal * (promoValidation.discount.value / 100))
                           : promoValidation.discount.value}
@@ -400,7 +398,7 @@ export default function CheckoutPage() {
                     </motion.div>
                   )}
                   <motion.div 
-                    className="flex justify-between text-lg font-bold mb-6"
+                    className="flex justify-between text-lg font-bold"
                     initial={{ scale: 0.9 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: 1.4, type: "spring" }}
